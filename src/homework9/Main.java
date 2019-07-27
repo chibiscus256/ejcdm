@@ -1,35 +1,44 @@
 package homework9;
 
-import homework9.model.GameMenu;
-import homework9.model.display.Displayer;
-import homework9.model.entity.Horse;
-import homework9.model.display.ProgressDisplayer;
-import homework9.model.RaceTrack;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CyclicBarrier;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main {
-
-    private final static int HORSE_COUNT = 6;
-    private final static float POLYGON_LENGTH = 100000.f;
-
     public static void main(String[] args) {
-        CyclicBarrier barrier = new CyclicBarrier(HORSE_COUNT);
+        boolean gameFlag = true;
+        String stringFlag;
+        RaceTrack raceTrack = new RaceTrack();
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
+            while (gameFlag) {
+                raceTrack.printConsole();
+                raceTrack.start(bufferedReader);
+                if (raceTrack.getBalance() <= 0) {
+                    System.out.println("GAME OVER");
+                    break;
+                }
+                System.out.println("wanna play again? Y/N");
+                stringFlag = bufferedReader.readLine();
+                gameFlag = booleanParsing(stringFlag);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        List<Horse> horses = new ArrayList<Horse>(HORSE_COUNT) {{
-            add(new Horse(barrier, 15, POLYGON_LENGTH));
-            add(new Horse(barrier, 24, POLYGON_LENGTH));
-            add(new Horse(barrier, 19, POLYGON_LENGTH));
-            add(new Horse(barrier, 7, POLYGON_LENGTH));
-            add(new Horse(barrier, 10, POLYGON_LENGTH));
-        }};
-
-        Displayer displayable = new ProgressDisplayer(POLYGON_LENGTH, 150);
-        RaceTrack<Horse> track = new RaceTrack<>(horses, barrier, POLYGON_LENGTH, displayable);
-
-        GameMenu menu = new GameMenu(track);
-        menu.start(horses);
+    /**
+     * Simple method for converting letter to boolean variable
+     */
+    static boolean booleanParsing(String s) {
+        boolean parameter;
+        if (s.equalsIgnoreCase("y")) {
+            parameter = true;
+        } else if (s.equalsIgnoreCase("n")) {
+            parameter = false;
+        } else {
+            parameter = false;
+            System.err.println("Illegal statement. Program has closed");
+        }
+        return parameter;
     }
 }
